@@ -1,0 +1,25 @@
+{
+  "conversion": {
+    "dpi": 96,
+    "preserve_layout": true,
+    "fixed_layout_epub": true,
+    "extract_images": true,
+    "extract_text": true
+  },
+  "epub": {
+    "language": "en",
+    "creator": "PDFtoEPUB Converter",
+    "publisher": "PDFtoEPUB"
+  },
+  "validation": {
+    "enabled": true,
+    "check_page_count": true,
+    "check_images": true,
+    "check_text": true,
+    "check_validity": true
+  },
+  "output": {
+    "format": "fixed-layout-epub",
+    "compression": "deflate"
+  }
+}
