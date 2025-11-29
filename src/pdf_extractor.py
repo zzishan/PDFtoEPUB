@@ -25,6 +25,7 @@ class TextElement:
     y1: float  # Bottom position
     font_name: str
     font_size: float
+    font_weight: int  # CSS font-weight (100-900)
     is_bold: bool
     is_italic: bool
     line_height: float
@@ -151,8 +152,9 @@ class PDFExtractor:
                 font_name = first_char.get('fontname', 'Unknown')
                 font_size = first_char.get('size', 12)
 
-                # Detect bold/italic from font metrics
+                # Detect bold/italic from font metrics and font weight
                 is_bold, is_italic = self._detect_bold_italic(first_char, font_name)
+                font_weight = self._detect_font_weight(font_name)
 
                 text_elem = TextElement(
                     text=line_text,
@@ -162,6 +164,7 @@ class PDFExtractor:
                     y1=y1_html,
                     font_name=font_name,
                     font_size=font_size,
+                    font_weight=font_weight,
                     is_bold=is_bold,
                     is_italic=is_italic,
                     line_height=y1_html - y0_html,
@@ -200,6 +203,44 @@ class PDFExtractor:
             is_italic = not char.get('upright', True)
 
         return is_bold, is_italic
+
+    def _detect_font_weight(self, font_name: str) -> int:
+        """Detect CSS font-weight from font name
+
+        Args:
+            font_name: Font name from PDF
+
+        Returns:
+            CSS font-weight value (100-900)
+        """
+        font_name_lower = font_name.lower()
+
+        # Check for specific weight indicators
+        if 'thin' in font_name_lower:
+            return 100
+        elif 'hairline' in font_name_lower:
+            return 100
+        elif 'extra' in font_name_lower and 'light' in font_name_lower:
+            return 200
+        elif 'light' in font_name_lower:
+            return 300
+        elif 'regular' in font_name_lower or 'normal' in font_name_lower:
+            return 400
+        elif 'medium' in font_name_lower:
+            return 500
+        elif 'semi' in font_name_lower and 'bold' in font_name_lower:
+            return 600
+        elif 'demi' in font_name_lower and 'bold' in font_name_lower:
+            return 600
+        elif 'bold' in font_name_lower:
+            return 700
+        elif 'extra' in font_name_lower and 'bold' in font_name_lower:
+            return 800
+        elif 'heavy' in font_name_lower or 'black' in font_name_lower:
+            return 900
+        else:
+            # Default to normal weight
+            return 400
 
     def _extract_images(self, page: pdfplumber.PDF.pages, page_num: int) -> List[ImageElement]:
         """Extract images with positioning"""

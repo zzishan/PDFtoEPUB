@@ -380,10 +380,9 @@ class EPUBGeneratorV2:
                 f'font-size:{text.font_size:.1f}px',
                 f'line-height:{text.line_height:.1f}px',
                 'font-family:serif',
+                f'font-weight:{text.font_weight}',
                 'color:black'
             ]
-            if text.is_bold:
-                style_parts.append('font-weight:bold')
             if text.is_italic:
                 style_parts.append('font-style:italic')
 
