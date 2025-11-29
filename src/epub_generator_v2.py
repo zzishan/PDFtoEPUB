@@ -347,7 +347,7 @@ class EPUBGeneratorV2:
                 'div',
                 {
                     'class': 'Basic-Graphics-Frame',
-                    'style': f'position:absolute;left:{img.x0}px;top:{img.y0}px;width:{img.width}px;height:{img.height}px'
+                    'style': f'position:absolute;left:{img.x0:.1f}px;top:{img.y0:.1f}px;width:{img.width:.1f}px;height:{img.height:.1f}px'
                 }
             )
             etree.SubElement(
@@ -367,7 +367,7 @@ class EPUBGeneratorV2:
                 'div',
                 {
                     'class': 'Basic-Text-Frame',
-                    'style': f'position:absolute;left:{text.x0}px;top:{text.y0}px'
+                    'style': f'position:absolute;left:{text.x0:.1f}px;top:{text.y0:.1f}px'
                 }
             )
             text_p = etree.SubElement(text_div, 'p')
@@ -376,7 +376,12 @@ class EPUBGeneratorV2:
             text_span.text = text.text
 
             # Apply text styling
-            style_parts = [f'font-size:{text.font_size}px', 'font-family:serif', 'color:black']
+            style_parts = [
+                f'font-size:{text.font_size:.1f}px',
+                f'line-height:{text.line_height:.1f}px',
+                'font-family:serif',
+                'color:black'
+            ]
             if text.is_bold:
                 style_parts.append('font-weight:bold')
             if text.is_italic:

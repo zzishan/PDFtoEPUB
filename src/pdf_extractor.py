@@ -147,8 +147,12 @@ class PDFExtractor:
                 y1_html = page_height - y0
 
                 # Get font info from first char
-                font_name = line_chars[0].get('font', 'Unknown')
-                font_size = line_chars[0].get('size', 12)
+                first_char = line_chars[0]
+                font_name = first_char.get('fontname', 'Unknown')
+                font_size = first_char.get('size', 12)
+
+                # Detect bold/italic from font metrics
+                is_bold, is_italic = self._detect_bold_italic(first_char, font_name)
 
                 text_elem = TextElement(
                     text=line_text,
@@ -158,14 +162,44 @@ class PDFExtractor:
                     y1=y1_html,
                     font_name=font_name,
                     font_size=font_size,
-                    is_bold='Bold' in font_name,
-                    is_italic='Italic' in font_name or 'Oblique' in font_name,
+                    is_bold=is_bold,
+                    is_italic=is_italic,
                     line_height=y1_html - y0_html,
                     page_num=page_num
                 )
                 text_elements.append(text_elem)
 
         return text_elements
+
+    def _detect_bold_italic(self, char: Dict[str, Any], font_name: str) -> Tuple[bool, bool]:
+        """Detect bold and italic from font metrics and properties
+
+        Args:
+            char: Character dictionary from pdfplumber
+            font_name: Font name extracted from character
+
+        Returns:
+            Tuple of (is_bold, is_italic)
+        """
+        is_bold = False
+        is_italic = False
+
+        # Check font name for weight indicators
+        font_name_lower = font_name.lower()
+
+        # Bold indicators
+        bold_indicators = ['bold', 'heavy', 'black', 'extra', 'thick']
+        is_bold = any(indicator in font_name_lower for indicator in bold_indicators)
+
+        # Italic indicators - check both font name and upright property
+        italic_indicators = ['italic', 'oblique', 'slant']
+        is_italic = any(indicator in font_name_lower for indicator in italic_indicators)
+
+        # Also check the 'upright' property - if False, it might be italic/oblique
+        if not is_italic and 'upright' in char:
+            is_italic = not char.get('upright', True)
+
+        return is_bold, is_italic
 
     def _extract_images(self, page: pdfplumber.PDF.pages, page_num: int) -> List[ImageElement]:
         """Extract images with positioning"""
